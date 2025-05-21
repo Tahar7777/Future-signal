@@ -2,50 +2,36 @@
 <html lang="ar">
 <head>
     <meta charset="UTF-8">
-    <title>إشارة تداول Binance</title>
+    <title>إشارات التداول</title>
     <style>
-        body { font-family: Arial, sans-serif; direction: rtl; background-color: #f0f0f0; padding: 20px; }
-        h1 { color: #333; }
+        body { font-family: Arial, sans-serif; direction: rtl; background-color: #f8f8f8; padding: 20px; }
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 10px; border: 1px solid #ccc; text-align: center; }
-        th { background-color: #eee; }
+        th, td { padding: 10px; border: 1px solid #ddd; text-align: center; }
+        th { background-color: #f0f0f0; }
+        h1 { text-align: center; color: #333; }
     </style>
 </head>
 <body>
-    <h1>إشارة تداول لـ {{ data.symbol }}</h1>
+    <h1>إشارات التداول من Binance</h1>
     <table>
         <tr>
-            <th>السعر الحالي</th>
-            <td>{{ data.price }}</td>
-        </tr>
-        <tr>
+            <th>الرمز</th>
             <th>الإشارة</th>
-            <td>{{ data.signal }}</td>
+            <th>السعر الحالي</th>
+            <th>الثقة</th>
+            <th>الرافعة</th>
+            <th>وقت الدخول</th>
         </tr>
+        {% for s in signals %}
         <tr>
-            <th>نسبة الثقة</th>
-            <td>{{ data.confidence }}</td>
+            <td>{{ s.symbol }}</td>
+            <td>{{ s.signal }}</td>
+            <td>{{ s.price }}</td>
+            <td>{{ s.confidence }}</td>
+            <td>{{ s.leverage }}</td>
+            <td>{{ s.entry_time }}</td>
         </tr>
-        <tr>
-            <th>RSI</th>
-            <td>{{ data.rsi }}</td>
-        </tr>
-        <tr>
-            <th>MACD</th>
-            <td>{{ data.macd }}</td>
-        </tr>
-        <tr>
-            <th>MACD Signal</th>
-            <td>{{ data.macd_signal }}</td>
-        </tr>
-        <tr>
-            <th>EMA سريع</th>
-            <td>{{ data.ema_fast }}</td>
-        </tr>
-        <tr>
-            <th>EMA بطيء</th>
-            <td>{{ data.ema_slow }}</td>
-        </tr>
+        {% endfor %}
     </table>
 </body>
 </html>
