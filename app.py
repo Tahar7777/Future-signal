@@ -1,9 +1,10 @@
-from flask import Flask, jsonify
+from flask import Flask, render_template
 from flask_cors import CORS
 import requests
 import pandas as pd
 import numpy as np
 import ta
+from datetime import datetime
 
 app = Flask(__name__)
 CORS(app)
@@ -27,6 +28,7 @@ def fetch_klines(symbol):
     df['open'] = df['open'].astype(float)
     df['high'] = df['high'].astype(float)
     df['low'] = df['low'].astype(float)
+    df['timestamp'] = pd.to_datetime(df['timestamp'], unit='ms')
 
     return df
 
@@ -47,11 +49,9 @@ def analyze_symbol(symbol):
     df['adx'] = ta.trend.ADXIndicator(high=df['high'], low=df['low'], close=df['close']).adx()
 
     latest = df.iloc[-1]
-    previous = df.iloc[-2]
 
     entry_price = latest['close']
-    stop_loss = entry_price * 0.995
-    target = entry_price * 1.005
+    timestamp = latest['timestamp'].strftime('%Y-%m-%d %H:%M UTC')
 
     confirmations = []
 
@@ -66,9 +66,9 @@ def analyze_symbol(symbol):
         confirmations.append("بيع - MACD سلبي")
 
     if latest['ema_fast'] > latest['ema_slow']:
-        confirmations.append("شراء - تقاطع EMA إيجابي")
+        confirmations.append("شراء - EMA إيجابي")
     elif latest['ema_fast'] < latest['ema_slow']:
-        confirmations.append("بيع - تقاطع EMA سلبي")
+        confirmations.append("بيع - EMA سلبي")
 
     if latest['close'] < latest['bb_lower']:
         confirmations.append("شراء - Bollinger منخفض")
@@ -78,11 +78,9 @@ def analyze_symbol(symbol):
     if latest['adx'] > 25:
         confirmations.append("اتجاه قوي - ADX")
 
-    # حساب عدد المؤشرات المؤيدة
     buy_signals = sum("شراء" in c for c in confirmations)
     sell_signals = sum("بيع" in c for c in confirmations)
 
-    # تحديد الإشارة النهائية
     if buy_signals > sell_signals:
         signal = "شراء"
     elif sell_signals > buy_signals:
@@ -90,11 +88,9 @@ def analyze_symbol(symbol):
     else:
         return None
 
-    # حساب نسبة الثقة
     total_signals = max(buy_signals, sell_signals)
     confidence_percent = int((total_signals / 6) * 100)
 
-    # تحديد الرافعة حسب الثقة
     if confidence_percent >= 95:
         leverage = "3x"
     elif confidence_percent >= 85:
@@ -102,26 +98,25 @@ def analyze_symbol(symbol):
     elif confidence_percent >= 70:
         leverage = "1x"
     else:
-        leverage = "0x (بدون رافعة)"
+        leverage = "0x"
 
     return {
-        "الرمز": symbol,
-        "الإشارة": signal,
-        "سعر الدخول": round(entry_price, 2),
-        "الهدف": round(target, 2),
-        "وقف الخسارة": round(stop_loss, 2),
-        "نسبة الثقة": f"{confidence_percent}%",
-        "الرافعة المقترحة": leverage
+        "symbol": symbol,
+        "signal": signal,
+        "price": round(entry_price, 2),
+        "confidence": f"{confidence_percent}%",
+        "leverage": leverage,
+        "entry_time": timestamp
     }
 
 @app.route('/')
-def home():
+def index():
     results = []
     for symbol in symbols:
         result = analyze_symbol(symbol)
         if result:
             results.append(result)
-    return jsonify(results)
+    return render_template("index.html", signals=results)
 
 if __name__ == '__main__':
     app.run(debug=True)
