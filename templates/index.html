@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <title>إشارة تداول Binance</title>
+    <style>
+        body { font-family: Arial, sans-serif; direction: rtl; background-color: #f0f0f0; padding: 20px; }
+        h1 { color: #333; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 10px; border: 1px solid #ccc; text-align: center; }
+        th { background-color: #eee; }
+    </style>
+</head>
+<body>
+    <h1>إشارة تداول لـ {{ data.symbol }}</h1>
+    <table>
+        <tr>
+            <th>السعر الحالي</th>
+            <td>{{ data.price }}</td>
+        </tr>
+        <tr>
+            <th>الإشارة</th>
+            <td>{{ data.signal }}</td>
+        </tr>
+        <tr>
+            <th>نسبة الثقة</th>
+            <td>{{ data.confidence }}</td>
+        </tr>
+        <tr>
+            <th>RSI</th>
+            <td>{{ data.rsi }}</td>
+        </tr>
+        <tr>
+            <th>MACD</th>
+            <td>{{ data.macd }}</td>
+        </tr>
+        <tr>
+            <th>MACD Signal</th>
+            <td>{{ data.macd_signal }}</td>
+        </tr>
+        <tr>
+            <th>EMA سريع</th>
+            <td>{{ data.ema_fast }}</td>
+        </tr>
+        <tr>
+            <th>EMA بطيء</th>
+            <td>{{ data.ema_slow }}</td>
+        </tr>
+    </table>
+</body>
+</html>
